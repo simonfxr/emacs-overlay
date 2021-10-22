@@ -103,11 +103,17 @@ let
     }
   );
 
+  emacs28 = mkGitEmacs "emacs28" ./repos/emacs/emacs-28.json { };
+
+  emacs28Gcc = mkGitEmacs "emacs28-gcc" ./repos/emacs/emacs-28.json { nativeComp = true; };
+
 in
 {
   inherit emacsGit emacsUnstable;
 
   inherit emacsGcc;
+
+  inherit emacs28 emacs28Gcc;
 
   inherit emacsPgtk emacsPgtkGcc;
 
@@ -185,4 +191,5 @@ in
     )
   );
 
+  emacsOverlay = { inherit mkGitEmacs; };
 }
