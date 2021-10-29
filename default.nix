@@ -103,9 +103,17 @@ let
     }
   );
 
-  emacs28 = mkGitEmacs "emacs28" ./repos/emacs/emacs-28.json { };
+  emacs28 = (mkGitEmacs "emacs28" ./repos/emacs/emacs-28.json { }).overrideAttrs (
+    old: {
+      patches = [];
+    }
+  );
 
-  emacs28Gcc = mkGitEmacs "emacs28-gcc" ./repos/emacs/emacs-28.json { nativeComp = true; };
+  emacs28Gcc = (mkGitEmacs "emacs28-gcc" ./repos/emacs/emacs-28.json { nativeComp = true; }).overrideAttrs (
+    old: {
+      patches = [];
+    }
+  );
 
 in
 {
