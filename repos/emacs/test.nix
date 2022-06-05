@@ -12,4 +12,6 @@ in {
   emacsGitNativeComp = mkTestBuild pkgs.emacsGitNativeComp;
   emacsPgtk = mkTestBuild pkgs.emacsPgtk;
   emacsPgtkNativeComp = mkTestBuild pkgs.emacsPgtkNativeComp;
+  commercialEmacsGit = mkTestBuild pkgs.commercialEmacsGit;
+  commercialEmacsGitNativeComp = mkTestBuild pkgs.commercialEmacsGitNativeComp;
 }

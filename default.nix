@@ -97,11 +97,18 @@ let
 
   emacsUnstable = (mkGitEmacs "emacs-unstable" ./repos/emacs/emacs-unstable.json { });
 
+  commercialEmacsGit = mkGitEmacs "commercial-emacs-git" ./repos/emacs/commercial-emacs-master.json { withSQLite3 = true; };
+
+  commercialEmacsGitNativeComp = mkGitEmacs "commercial-emacs-git-native-comp" ./repos/emacs/commercial-emacs-master.json {
+    withSQLite3 = true;
+    nativeComp = true;
+  };
+
 in
 {
-  inherit emacsGit emacsUnstable;
+  inherit emacsGit emacsUnstable commercialEmacsGit;
 
-  inherit emacsNativeComp emacsGitNativeComp;
+  inherit emacsNativeComp emacsGitNativeComp commercialEmacsGitNativeComp;
 
   inherit emacsPgtk emacsPgtkNativeComp;
 
@@ -123,6 +130,21 @@ in
   emacsUnstable-nox = (
     (
       emacsUnstable.override {
+        withNS = false;
+        withX = false;
+        withGTK2 = false;
+        withGTK3 = false;
+      }
+    ).overrideAttrs (
+      oa: {
+        name = "${oa.name}-nox";
+      }
+    )
+  );
+
+  commercialEmacsGit-nox = (
+    (
+      emacsGit.override {
         withNS = false;
         withX = false;
         withGTK2 = false;
