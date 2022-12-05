@@ -175,6 +175,16 @@ let
     withNativeCompilation = false;
   };
 
+  emacs-next = let base = super.lib.makeOverridable (mkGitEmacs "emacs-next" ../repos/emacs/emacs-next.json) { withSQLite3 = true; withWebP = true; };
+                   # TODO: remove when we drop support for < 23.05, and instead move withTreeSitter to the above line with the other arguments
+                   maybeOverridden = if (super.lib.hasAttr "treeSitter" base || super.lib.hasAttr "withTreeSitter" base) then base.override { withTreeSitter = true; } else base;
+               in maybeOverridden;
+
+  emacs-next-pgtk = let base = super.lib.makeOverridable (mkGitEmacs "emacs-next" ../repos/emacs/emacs-next.json) { withSQLite3 = true; withWebP = true; withPgtk = true; };
+                        # TODO: remove when we drop support for < 23.05, and instead move withTreeSitter to the above line with the other arguments
+                        maybeOverridden = if (super.lib.hasAttr "treeSitter" base || super.lib.hasAttr "withTreeSitter" base) then base.override { withTreeSitter = true; } else base;
+                    in maybeOverridden;
+
   emacs-git-nox = (
     (
       emacs-git.override {
@@ -205,13 +215,29 @@ let
     )
   );
 
+  emacs-next-nox = (
+    (
+      emacs-next.override {
+        withNS = false;
+        withX = false;
+        withGTK2 = false;
+        withGTK3 = false;
+        withWebP = false;
+      }
+    ).overrideAttrs (
+      oa: {
+        name = "${oa.name}-nox";
+      }
+    )
+  );
+
 in
 {
-  inherit emacs-git emacs-unstable;
+  inherit emacs-git emacs-unstable emacs-next;
 
-  inherit emacs-git-pgtk emacs-unstable-pgtk;
+  inherit emacs-git-pgtk emacs-unstable-pgtk emacs-next-pgtk;
 
-  inherit emacs-git-nox emacs-unstable-nox;
+  inherit emacs-git-nox emacs-unstable-nox emacs-next-nox;
 
   inherit emacs-lsp;
 
