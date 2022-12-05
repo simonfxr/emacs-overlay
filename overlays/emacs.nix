@@ -192,6 +192,25 @@ let
                         platforms = super.lib.platforms.linux;
                       };
                     });
+  emacs-next = let base = (mkGitEmacs "emacs-next" ../repos/emacs/emacs-next.json) { };
+                  emacs = emacs-next;
+              in
+                base.overrideAttrs (
+                  oa: {
+                    passthru = oa.passthru // {
+                        pkgs = oa.passthru.pkgs.overrideScope (eself: esuper: { inherit emacs; });
+                    };
+                  });
+
+  emacs-next-pgtk = let base = (mkGitEmacs "emacs-next-pgtk" ../repos/emacs/emacs-next.json) { withPgtk = true; };
+                  emacs = emacs-next-pgtk;
+              in
+                base.overrideAttrs (
+                  oa: {
+                    passthru = oa.passthru // {
+                        pkgs = oa.passthru.pkgs.overrideScope (eself: esuper: { inherit emacs; });
+                    };
+                  });
 
   emacs-git-nox = (
     (
@@ -223,13 +242,28 @@ let
     )
   );
 
+  emacs-next-nox = (
+    (
+      emacs-next.override {
+        withNS = false;
+        withX = false;
+        withGTK3 = false;
+        withWebP = false;
+      }
+    ).overrideAttrs (
+      oa: {
+        name = "${oa.name}-nox";
+      }
+    )
+  );
+
 in
 {
-  inherit emacs-git emacs-unstable;
+  inherit emacs-git emacs-unstable emacs-next;
 
-  inherit emacs-git-pgtk emacs-unstable-pgtk;
+  inherit emacs-git-pgtk emacs-unstable-pgtk emacs-next-pgtk;
 
-  inherit emacs-git-nox emacs-unstable-nox;
+  inherit emacs-git-nox emacs-unstable-nox emacs-next-nox;
 
   inherit emacs-igc emacs-igc-pgtk;
 
