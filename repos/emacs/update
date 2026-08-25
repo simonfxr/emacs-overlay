@@ -5,27 +5,27 @@ set -euxo pipefail
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 cd $SCRIPTPATH
 
-function update_savannah_branch() {
+function update_git_branch() {
     branch=$1
     echo emacs $branch
 
-    url="https://https.git.savannah.gnu.org/git/emacs.git"
-    mirror_url="https://github.com/emacs-mirror/emacs.git"
+    url="https://github.com/emacs-mirror/emacs.git"
 
     # extract the latest commit sha
     commit_sha=$(git ls-remote --branches "$url" refs/heads/$branch | cut -f 1)
 
-    if ! source_info=$(nix-prefetch-git --rev "$commit_sha" "$url"); then
-        echo "Prefetching from Savannah failed; trying GitHub mirror" >&2
-        source_info=$(nix-prefetch-git --rev "$commit_sha" "$mirror_url")
-    fi
+    source_info=$(nix-prefetch-git --rev "$commit_sha" "$url")
 
     digest=$(echo $source_info | jq -r .sha256)
     # build a version number based on date: YYYYMMDD.0
     version_number=$(echo $source_info | jq -r .date | cut -d 'T' -f 1 | sed 's/-//g').0
     output_branch=$(echo $branch | sed s/"\/"/"_"/)
     suffix=${2:-$output_branch}
-    echo "{\"type\": \"savannah\", \"url\": \"${url}\", \"rev\": \"${commit_sha}\", \"sha256\": \"${digest}\", \"version\": \"${version_number}\"}" > emacs-$suffix.json
+    echo "{\"type\": \"git\", \"url\": \"${url}\", \"rev\": \"${commit_sha}\", \"sha256\": \"${digest}\", \"version\": \"${version_number}\"}" > emacs-$suffix.json
+}
+
+function update_savannah_branch() {
+    update_git_branch "$@"
 }
 
 function update_github_repo() {
@@ -54,6 +54,6 @@ function update_unstable() {
 # update_savannah_branch master
 # update_savannah_branch feature/igc3
 # update_unstable
-update_savannah_branch emacs-31 next
+update_git_branch emacs-31 next
 
 #nix-build --no-out-link --show-trace ./test.nix

@@ -8,6 +8,7 @@ import json
 # Meaning that older -rc releases may be prefered to a later stable release.
 
 TAG_PREAMBLE = "refs/tags/emacs-"
+GIT_URL = "https://github.com/emacs-mirror/emacs.git"
 
 
 def main():
@@ -17,7 +18,7 @@ def main():
             "ls-remote",
             "--tags",
             "--refs",
-            "https://https.git.savannah.gnu.org/git/emacs.git",
+            GIT_URL,
             "emacs-[1-9]*",
         ],
         stdout=subprocess.PIPE,
@@ -48,7 +49,7 @@ def main():
             "nix-prefetch-git",
             "--rev",
             f"refs/tags/{latest_tag}",
-            "https://https.git.savannah.gnu.org/git/emacs.git",
+            GIT_URL,
         ],
         stdout=subprocess.PIPE,
         check=True,
@@ -58,10 +59,10 @@ def main():
     with open("./emacs-unstable.json", "w") as fp:
         json.dump(
             {
-                "type": "savannah",
-                "url": "https://https.git.savannah.gnu.org/git/emacs.git",
+                "type": "git",
+                "url": GIT_URL,
                 "rev": latest_tag,
-                "sha256": digest['sha256'],
+                "sha256": digest["sha256"],
                 "version": latest_version,
             },
             fp,
