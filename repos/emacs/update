@@ -10,11 +10,15 @@ function update_savannah_branch() {
     echo emacs $branch
 
     url="https://https.git.savannah.gnu.org/git/emacs.git"
+    mirror_url="https://github.com/emacs-mirror/emacs.git"
 
     # extract the latest commit sha
     commit_sha=$(git ls-remote --branches "$url" refs/heads/$branch | cut -f 1)
 
-    source_info=$(nix-prefetch-git --rev $commit_sha "$url")
+    if ! source_info=$(nix-prefetch-git --rev "$commit_sha" "$url"); then
+        echo "Prefetching from Savannah failed; trying GitHub mirror" >&2
+        source_info=$(nix-prefetch-git --rev "$commit_sha" "$mirror_url")
+    fi
 
     digest=$(echo $source_info | jq -r .sha256)
     # build a version number based on date: YYYYMMDD.0
