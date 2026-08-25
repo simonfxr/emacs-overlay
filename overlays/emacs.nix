@@ -4,7 +4,7 @@ let
     let
       repoMeta = super.lib.importJSON jsonFile;
       fetcher =
-        if repoMeta.type == "savannah" then
+        if repoMeta.type == "savannah" || repoMeta.type == "git" then
           super.fetchgit
         else if repoMeta.type == "github" then
           super.fetchFromGitHub
